@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MemoCalc Pro — UI Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & VARS ──────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-page: #0d0f14;
+    --phone-bg: #f5f7fa;
+    --phone-border: #1a1c22;
+    --accent: #ff6b35;
+    --accent2: #3d9eff;
+    --font-ui: 'Sora', 'Noto Sans JP', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  /* DARK theme vars */
+  .theme-dark {
+    --app-bg: #0e1117;
+    --surface: #161b25;
+    --surface2: #1e2535;
+    --surface3: #252f42;
+    --text-primary: #e8edf5;
+    --text-secondary: #7a8aaa;
+    --text-dim: #445066;
+    --border: #252f42;
+    --display-bg: #0b0e14;
+    --key-bg: #1e2535;
+    --key-bg-op: #1a2a4a;
+    --key-bg-eq: #ff6b35;
+    --key-text: #d0d8eb;
+    --key-text-op: #3d9eff;
+    --key-text-eq: #fff;
+    --memo-bg: #161b25;
+    --memo-border: #252f42;
+    --sep-bg: #252f42;
+    --sep-handle: #3a4560;
+    --header-bg: #0e1117;
+    --shadow: rgba(0,0,0,0.5);
+    --glow: rgba(255,107,53,0.15);
+  }
+
+  /* LIGHT theme vars */
+  .theme-light {
+    --app-bg: #f0f3f9;
+    --surface: #ffffff;
+    --surface2: #f4f7fd;
+    --surface3: #e8eef8;
+    --text-primary: #1a2240;
+    --text-secondary: #6678a0;
+    --text-dim: #9aaac8;
+    --border: #dde4f0;
+    --display-bg: #fafbfe;
+    --key-bg: #ffffff;
+    --key-bg-op: #e8f0fe;
+    --key-bg-eq: #ff6b35;
+    --key-text: #1a2240;
+    --key-text-op: #1a56cc;
+    --key-text-eq: #fff;
+    --memo-bg: #ffffff;
+    --memo-border: #dde4f0;
+    --sep-bg: #e4e9f5;
+    --sep-handle: #b0bcd8;
+    --header-bg: #f9fafd;
+    --shadow: rgba(0,20,80,0.1);
+    --glow: rgba(255,107,53,0.08);
+  }
+
+  /* ── PAGE LAYOUT ──────────────────────────────── */
+  body {
+    background: var(--bg-page);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 20px;
+  }
+
+  .page-title {
+    color: #fff;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  /* ── CONTROLS ──────────────────────────────────── */
+  .controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .ctrl-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .ctrl-btn:hover, .ctrl-btn.active {
+    background: rgba(255,107,53,0.2);
+    border-color: rgba(255,107,53,0.4);
+    color: #ff6b35;
+  }
+
+  /* ── PHONE FRAME ──────────────────────────────── */
+  .phone-wrapper {
+    position: relative;
+    width: 375px;
+    filter: drop-shadow(0 40px 80px rgba(0,0,0,0.8));
+  }
+
+  .phone-frame {
+    background: #1a1c22;
+    border-radius: 52px;
+    padding: 14px;
+    position: relative;
+  }
+
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 52px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.03));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .phone-screen {
+    background: var(--app-bg);
+    border-radius: 40px;
+    overflow: hidden;
+    width: 100%;
+    height: 780px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s;
+  }
+
+  /* Dynamic island */
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 30px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+  }
+
+  /* ── STATUS BAR ──────────────────────────────── */
+  .status-bar {
+    height: 48px;
+    padding: 0 28px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    flex-shrink: 0;
+    background: var(--header-bg);
+    transition: background 0.3s;
+  }
+  .status-time {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color 0.3s;
+  }
+  .status-icons {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .status-icons svg { color: var(--text-primary); transition: color 0.3s; }
+
+  /* ── APP HEADER ───────────────────────────────── */
+  .app-header {
+    background: var(--header-bg);
+    padding: 8px 20px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .app-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+    transition: color 0.3s;
+  }
+  .app-name span { color: var(--accent); }
+  .header-icons { display: flex; gap: 14px; }
+  .hicon {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    background: var(--surface2);
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+  }
+  .hicon:hover { background: var(--surface3); color: var(--text-primary); }
+  .hicon.lang-btn { font-size: 10px; font-weight: 700; letter-spacing: 0.3px; font-family: var(--font-ui); }
+
+  /* ── MEMO AREA ────────────────────────────────── */
+  .memo-section {
+    background: var(--app-bg);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s;
+    overflow: hidden;
+  }
+
+  .memo-header {
+    padding: 10px 18px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .memo-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    transition: color 0.3s;
+  }
+  .memo-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    font-family: var(--font-mono);
+  }
+  .memo-actions { display: flex; gap: 8px; align-items: center; }
+  .memo-act-btn {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: var(--surface2);
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    font-family: var(--font-ui);
+  }
+  .memo-act-btn:hover { background: var(--surface3); }
+  .memo-clear-btn { color: #ff4d4d !important; border-color: rgba(255,77,77,0.25) !important; }
+  .memo-clear-btn:hover { background: rgba(255,77,77,0.1) !important; border-color: rgba(255,77,77,0.5) !important; }
+
+  .memo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 0 14px 10px;
+    overflow-y: auto;
+    max-height: 220px;
+  }
+  .memo-grid::-webkit-scrollbar { width: 3px; }
+  .memo-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .memo-tile {
+    background: var(--memo-bg);
+    border: 1px solid var(--memo-border);
+    border-radius: 14px;
+    padding: 10px 10px 8px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .memo-tile::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 14px 0 0 14px;
+    transition: background 0.2s;
+  }
+  .memo-tile.color-red::before { background: #ff4d4d; }
+  .memo-tile.color-orange::before { background: #ff8c42; }
+  .memo-tile.color-yellow::before { background: #f5c842; }
+  .memo-tile.color-green::before { background: #42c97a; }
+  .memo-tile.color-blue::before { background: #3d9eff; }
+  .memo-tile.color-purple::before { background: #a06cff; }
+  .memo-tile.color-pink::before { background: #ff6caa; }
+  .memo-tile.color-gray::before { background: #7a8aaa; }
+  .memo-tile.pinned { border-color: var(--accent); }
+  .memo-tile.pinned::after {
+    content: '📌';
+    position: absolute;
+    top: 5px; right: 6px;
+    font-size: 9px;
+  }
+
+  .memo-tile:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--shadow); }
+  .memo-tile:active { transform: scale(0.97); }
+
+  .memo-value {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+    transition: color 0.3s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .memo-label {
+    font-size: 9px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: color 0.3s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* swipe delete overlay */
+  .memo-tile .swipe-delete {
+    position: absolute;
+    inset: 0;
+    background: #ff3b30;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 14px;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    pointer-events: none;
+    font-size: 18px;
+  }
+  .memo-tile.swiping-left .swipe-delete { transform: translateX(0); pointer-events: auto; }
+
+  /* drop zone highlight */
+  .memo-grid.drop-active {
+    background: rgba(61,158,255,0.05);
+    border-radius: 14px;
+    outline: 2px dashed var(--accent2);
+  }
+
+  /* add-memo tile */
+  .memo-add-tile {
+    background: transparent;
+    border: 1.5px dashed var(--border);
+    border-radius: 14px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 58px;
+  }
+  .memo-add-tile:hover { border-color: var(--accent); background: var(--glow); }
+  .memo-add-icon { font-size: 16px; color: var(--text-dim); transition: color 0.2s; }
+  .memo-add-tile:hover .memo-add-icon { color: var(--accent); }
+  .memo-add-text { font-size: 8px; color: var(--text-dim); font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
+  .memo-add-tile:hover .memo-add-text { color: var(--accent); }
+
+  /* ── SEPARATOR ────────────────────────────────── */
+  .separator {
+    height: 20px;
+    background: var(--sep-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: ns-resize;
+    flex-shrink: 0;
+    transition: background 0.3s;
+    position: relative;
+  }
+  .separator::before, .separator::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .separator::before { top: 0; }
+  .separator::after { bottom: 0; }
+  .sep-handle {
+    width: 36px; height: 4px;
+    background: var(--sep-handle);
+    border-radius: 2px;
+    transition: background 0.3s;
+  }
+
+  /* ── CALC SECTION ─────────────────────────────── */
+  .calc-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--display-bg);
+    transition: background 0.3s;
+  }
+
+  /* display */
+  .calc-display {
+    padding: 14px 22px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    gap: 2px;
+  }
+  .expr-line {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: color 0.3s;
+    min-height: 18px;
+    word-break: break-all;
+    text-align: right;
+  }
+  .result-line {
+    font-family: var(--font-mono);
+    font-size: 38px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -1px;
+    transition: color 0.3s, font-size 0.15s;
+    word-break: break-all;
+    text-align: right;
+    cursor: grab;
+    line-height: 1;
+  }
+  .result-line:active { cursor: grabbing; }
+  .result-line.dragging {
+    opacity: 0.5;
+    transform: scale(0.97);
+  }
+
+  /* drag ghost */
+  .drag-ghost {
+    position: fixed;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(255,107,53,0.4);
+    transform: translate(-50%, -50%);
+    display: none;
+  }
+
+  /* tax & history row */
+  .display-meta {
+    padding: 4px 22px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .tax-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent2);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-ui);
+  }
+  .tax-badge:hover { background: var(--surface3); }
+  .tax-badge.selecting { border-color: var(--accent2); background: rgba(61,158,255,0.1); }
+  .tax-label { color: var(--text-dim); font-size: 9px; }
+  .hist-btn {
+    font-size: 10px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 500;
+    transition: color 0.2s;
+    font-family: var(--font-ui);
+  }
+  .hist-btn:hover { color: var(--text-primary); }
+
+  /* tax selector popup */
+  .tax-popup {
+    position: absolute;
+    bottom: 80px;
+    left: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 8px;
+    z-index: 200;
+    box-shadow: 0 16px 40px var(--shadow);
+    display: none;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .tax-popup.open { display: block; }
+  .tax-opt {
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-ui);
+  }
+  .tax-opt:hover { background: var(--surface2); }
+  .tax-opt.active { background: rgba(255,107,53,0.1); color: var(--accent); }
+  .tax-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: none; }
+  .tax-opt.active .tax-dot { display: block; }
+
+  /* keypad */
+  .keypad {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 8px 14px 18px;
+    transition: background 0.3s;
+  }
+
+  .key {
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.1s;
+    position: relative;
+    overflow: hidden;
+    border: none;
+    outline: none;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .key::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.08);
+    opacity: 0;
+    transition: opacity 0.1s;
+    border-radius: 16px;
+  }
+  .key:active { transform: scale(0.94); box-shadow: none; }
+  .key:active::after { opacity: 1; }
+
+  .key-num {
+    background: var(--key-bg);
+    color: var(--key-text);
+    font-size: 20px;
+    border: 1px solid var(--border);
+  }
+  .key-op {
+    background: var(--key-bg-op);
+    color: var(--key-text-op);
+    font-size: 22px;
+    border: 1px solid rgba(61,158,255,0.15);
+  }
+  .key-fn {
+    background: var(--surface2);
+    color: var(--text-secondary);
+    font-size: 15px;
+    border: 1px solid var(--border);
+  }
+  .key-eq {
+    background: var(--key-bg-eq);
+    color: #fff;
+    font-size: 26px;
+    border: none;
+    box-shadow: 0 4px 16px rgba(255,107,53,0.35);
+  }
+  .key-eq:active { box-shadow: none; }
+  .key-zero { grid-column: span 2; }
+  .key-tax {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    background: var(--surface2);
+    color: var(--accent2);
+    border: 1px solid rgba(61,158,255,0.2);
+  }
+
+  /* ── HISTORY DRAWER ──────────────────────────── */
+  .history-drawer {
+    position: absolute;
+    inset: 0;
+    background: var(--app-bg);
+    z-index: 300;
+    border-radius: 40px;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), background 0.3s;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .history-drawer.open { transform: translateY(0); }
+
+  .drawer-handle {
+    width: 36px; height: 4px;
+    background: var(--sep-handle);
+    border-radius: 2px;
+    margin: 14px auto 0;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .drawer-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    padding: 14px 22px 12px;
+    flex-shrink: 0;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .drawer-close {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .drawer-close:hover { background: var(--surface3); color: var(--text-primary); }
+
+  .hist-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 20px;
+  }
+  .hist-list::-webkit-scrollbar { width: 3px; }
+  .hist-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .hist-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .hist-item:hover { background: var(--surface2); border-color: var(--accent); }
+  .hist-expr {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 3px;
+    transition: color 0.3s;
+  }
+  .hist-result {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color 0.3s;
+  }
+  .hist-time {
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 3px;
+    transition: color 0.3s;
+  }
+
+  /* ── COLOR PICKER POPUP ─────────────────────── */
+  .color-picker-popup {
+    position: absolute;
+    z-index: 400;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 16px 48px var(--shadow);
+    display: none;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .color-picker-popup.open { display: block; }
+  .cp-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    text-align: center;
+    transition: color 0.3s;
+    font-family: var(--font-ui);
+  }
+  .cp-colors {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .cp-swatch {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 2px solid transparent;
+  }
+  .cp-swatch:hover { transform: scale(1.15); }
+  .cp-swatch.selected { border-color: var(--text-primary); box-shadow: 0 0 0 3px var(--surface); }
+
+  /* ── UPGRADE TOAST / BANNER ─────────────────── */
+  .upgrade-banner {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(135deg, #ff6b35, #ff3d00);
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 500;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    border-radius: 0 0 40px 40px;
+  }
+  .upgrade-banner.show { transform: translateY(0); }
+  .upgrade-text { font-size: 12px; font-weight: 600; font-family: var(--font-ui); }
+  .upgrade-text span { font-size: 10px; font-weight: 400; display: block; opacity: 0.85; margin-top: 1px; }
+  .upgrade-btn {
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    transition: background 0.2s;
+  }
+  .upgrade-btn:hover { background: rgba(255,255,255,0.35); }
+
+  /* ── TOAST ───────────────────────────────────── */
+  .toast {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface3);
+    color: var(--text-primary);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 20px;
+    white-space: nowrap;
+    z-index: 600;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s, background 0.3s, color 0.3s;
+    pointer-events: none;
+    font-family: var(--font-ui);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .undo-btn {
+    color: var(--accent2);
+    font-weight: 700;
+    margin-left: 8px;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  /* animations */
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .memo-tile { animation: popIn 0.2s ease; }
+
+  @keyframes numFlash {
+    0% { color: var(--accent); }
+    100% { color: var(--text-primary); }
+  }
+  .result-line.flash { animation: numFlash 0.3s ease; }
+
+
+  /* ── SUM FEATURE ─────────────────────────────── */
+  .memo-sum-btn {
+    background: var(--surface3) !important;
+    color: var(--accent2) !important;
+    border-color: rgba(61,158,255,0.25) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px;
+  }
+  .memo-sum-btn:hover {
+    background: rgba(61,158,255,0.12) !important;
+  }
+  .memo-sum-btn.active {
+    background: rgba(61,158,255,0.15) !important;
+    border-color: var(--accent2) !important;
+  }
+
+  .sum-bar {
+    margin: 0 14px 10px;
+    background: var(--surface2);
+    border: 1.5px solid var(--accent2);
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+    transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1),
+                opacity 0.25s ease,
+                padding 0.3s ease,
+                margin-bottom 0.3s ease,
+                border-width 0.3s ease;
+  }
+  .sum-bar.open {
+    max-height: 60px;
+    opacity: 1;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    border-width: 1.5px;
+  }
+  .sum-bar-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sum-bar-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    font-family: var(--font-ui);
+    transition: color 0.3s;
+  }
+  .sum-bar-breakdown {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    transition: color 0.3s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+  .sum-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sum-bar-value {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    transition: color 0.3s;
+    letter-spacing: -0.5px;
+  }
+  .sum-bar-use-btn {
+    background: var(--accent2);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 5px 11px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    white-space: nowrap;
+  }
+  .sum-bar-use-btn:active { transform: scale(0.95); opacity: 0.8; }
+
+  @keyframes sumPop {
+    0%   { transform: scale(0.95); }
+    50%  { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+  .sum-bar.open { animation: sumPop 0.3s ease; }
+
+  /* ── PRO MODAL ───────────────────────────────── */
+  .pro-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 700;
+    border-radius: 40px;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .pro-modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .pro-modal {
+    background: var(--surface);
+    border-radius: 28px 28px 40px 40px;
+    width: 100%;
+    padding: 0 0 24px;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), background 0.3s;
+    max-height: 88%;
+    overflow-y: auto;
+  }
+  .pro-modal::-webkit-scrollbar { display: none; }
+  .pro-modal-overlay.open .pro-modal { transform: translateY(0); }
+
+  .pro-modal-handle {
+    width: 36px; height: 4px;
+    background: var(--sep-handle);
+    border-radius: 2px;
+    margin: 14px auto 0;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .pro-modal-hero {
+    background: linear-gradient(135deg, #1a3557 0%, #0e1a2e 100%);
+    margin: 12px 16px 0;
+    border-radius: 20px;
+    padding: 22px 20px 18px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .pro-modal-hero::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,107,53,0.15);
+  }
+  .pro-modal-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: -20px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(61,158,255,0.12);
+  }
+  .pro-badge {
+    display: inline-block;
+    background: linear-gradient(90deg, #ff6b35, #ff3d00);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    font-family: var(--font-ui);
+    position: relative;
+    z-index: 1;
+  }
+  .pro-modal-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 6px;
+    font-family: var(--font-ui);
+    position: relative;
+    z-index: 1;
+    letter-spacing: -0.3px;
+  }
+  .pro-modal-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    font-family: var(--font-ui);
+    position: relative;
+    z-index: 1;
+  }
+  .pro-limit-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+    position: relative;
+    z-index: 1;
+  }
+  .limit-bar {
+    height: 6px;
+    border-radius: 3px;
+    width: 160px;
+    background: rgba(255,255,255,0.15);
+    overflow: hidden;
+  }
+  .limit-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #ff6b35, #ff3d00);
+    transition: width 0.6s ease;
+  }
+  .limit-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+    font-family: var(--font-mono);
+  }
+
+  .pro-features {
+    padding: 16px 18px 0;
+  }
+  .pro-feat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .pro-feat-icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .pro-feat-text { flex: 1; }
+  .pro-feat-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: color 0.3s;
+    font-family: var(--font-ui);
+  }
+  .pro-feat-desc {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 1px;
+    transition: color 0.3s;
+    font-family: var(--font-ui);
+  }
+  .pro-feat-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255,107,53,0.12);
+    color: var(--accent);
+    flex-shrink: 0;
+    font-family: var(--font-ui);
+  }
+  .pro-feat-badge.included {
+    background: rgba(66,201,122,0.12);
+    color: #42c97a;
+  }
+
+  .pro-cta-area {
+    padding: 16px 18px 0;
+  }
+  .pro-price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .pro-price {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    transition: color 0.3s;
+    letter-spacing: -1px;
+  }
+  .pro-price-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-ui);
+    transition: color 0.3s;
+  }
+  .pro-buy-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #ff6b35, #ff3d00);
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255,107,53,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .pro-buy-btn:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(255,107,53,0.2); }
+  .pro-restore-btn {
+    width: 100%;
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    padding: 10px;
+    font-size: 11px;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    transition: color 0.2s;
+    margin-top: 4px;
+  }
+  .pro-restore-btn:hover { color: var(--text-primary); }
+
+  /* ── FULL-STATE MEMO GRID ─────────────────────── */
+  .memo-grid.full-warning {
+    outline: 2px solid #ff3b30;
+    background: rgba(255,59,48,0.05);
+    border-radius: 14px;
+    animation: shakeGrid 0.4s ease;
+  }
+  @keyframes shakeGrid {
+    0%   { transform: translateX(0); }
+    15%  { transform: translateX(-6px); }
+    30%  { transform: translateX(6px); }
+    45%  { transform: translateX(-4px); }
+    60%  { transform: translateX(4px); }
+    75%  { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+  }
+  .memo-full-badge {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ff3b30;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    z-index: 10;
+    pointer-events: none;
+    animation: popIn 0.2s ease;
+    font-family: var(--font-ui);
+    white-space: nowrap;
+  }
+  .memo-grid.full-warning .memo-full-badge { display: block; }
+
+  .drag-reject-flash {
+    position: absolute;
+    inset: 0;
+    border-radius: 40px;
+    background: rgba(255,59,48,0.08);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 800;
+    transition: opacity 0.15s;
+  }
+  .drag-reject-flash.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<p class="page-title">MemoCalc Pro · UI Mockup</p>
+
+<div class="controls">
+  <button class="ctrl-btn active" id="btn-dark" onclick="setTheme('dark')">🌙 Dark</button>
+  <button class="ctrl-btn" id="btn-light" onclick="setTheme('light')">☀️ Light</button>
+  <button class="ctrl-btn" id="btn-ja" onclick="setLang('ja')">🇯🇵 日本語</button>
+  <button class="ctrl-btn" id="btn-en" onclick="setLang('en')">🇺🇸 English</button>
+  <button class="ctrl-btn" onclick="showProModal()">⚡ Pro 制限モーダル</button>
+</div>
+
+<div class="phone-wrapper">
+  <div class="phone-frame">
+    <div class="phone-screen theme-light" id="phoneScreen">
+
+      <div class="dynamic-island"></div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><rect x="0" y="3" width="3" height="8" rx="1" opacity="0.3"/><rect x="4.5" y="2" width="3" height="9" rx="1" opacity="0.6"/><rect x="9" y="0" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="2.5" height="11" rx="1"/></svg>
+          <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><path d="M7.5 2.5C9.8 2.5 11.8 3.5 13.2 5L14.5 3.7C12.7 1.9 10.2 0.8 7.5 0.8S2.3 1.9 0.5 3.7L1.8 5C3.2 3.5 5.2 2.5 7.5 2.5Z" opacity="0.3"/><path d="M7.5 5.5C9 5.5 10.3 6.1 11.3 7.1L12.6 5.8C11.2 4.4 9.4 3.6 7.5 3.6S3.8 4.4 2.4 5.8L3.7 7.1C4.7 6.1 6 5.5 7.5 5.5Z" opacity="0.6"/><circle cx="7.5" cy="9.5" r="1.5"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="3" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.5"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" opacity="0.4"/><rect x="1.5" y="2.5" width="16" height="7" rx="1.5"/></svg>
+        </div>
+      </div>
+
+      <!-- App Header -->
+      <div class="app-header">
+        <div class="app-name">Memo<span>Calc</span> <span style="font-weight:300;color:var(--text-secondary);font-size:14px">Pro</span></div>
+        <div class="header-icons">
+          <div class="hicon lang-btn" id="langBtn" onclick="toggleLang()">JA</div>
+          <div class="hicon" onclick="toggleTheme()" title="テーマ切替">◐</div>
+          <div class="hicon" onclick="showHistoryDrawer()">⏱</div>
+        </div>
+      </div>
+
+      <!-- Memo Section -->
+      <div class="memo-section" id="memoSection" style="height:250px">
+        <div class="memo-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="memo-title" data-ja="メモ" data-en="Notes">メモ</span>
+            <span class="memo-count" id="memoCount">5 / 5</span>
+          </div>
+          <div class="memo-actions">
+            <div class="memo-act-btn memo-sum-btn" id="sumBtn" onclick="sumAllMemos()" data-ja="∑ 合計" data-en="∑ Sum">∑ 合計</div>
+            <div class="memo-act-btn" onclick="toggleGroup()" data-ja="グループ" data-en="Groups">グループ</div>
+            <div class="memo-act-btn memo-clear-btn" id="clearAllBtn" onclick="clearAllMemos()" data-ja="一括クリア" data-en="Clear All">一括クリア</div>
+          </div>
+        </div>
+
+        <!-- Sum Result Bar -->
+        <div class="sum-bar" id="sumBar">
+          <div class="sum-bar-left">
+            <span class="sum-bar-label" data-ja="合計金額" data-en="Total">合計金額</span>
+            <span class="sum-bar-breakdown" id="sumBreakdown">1,200 + 3,600 + 500 + 4,100 + 2,980</span>
+          </div>
+          <div class="sum-bar-right">
+            <span class="sum-bar-value" id="sumValue">12,380</span>
+            <button class="sum-bar-use-btn" onclick="useSumInCalc()" data-ja="実行" data-en="Use">実行</button>
+          </div>
+        </div>
+
+        <div class="memo-grid" id="memoGrid" style="position:relative"
+          ondragover="event.preventDefault(); this.classList.add('drop-active')"
+          ondragleave="this.classList.remove('drop-active')"
+          ondrop="handleDrop(event)">
+        </div>
+      </div>
+
+      <!-- Separator -->
+      <div class="separator" id="separator">
+        <div class="sep-handle"></div>
+      </div>
+
+      <!-- Calc Section -->
+      <div class="calc-section">
+        <!-- Display -->
+        <div class="calc-display">
+          <div class="expr-line" id="exprLine">1,200 × 3 + 500</div>
+          <div class="result-line" id="resultLine"
+            draggable="true"
+            ondragstart="startDrag(event)"
+            ondragend="endDrag(event)">4,100</div>
+        </div>
+
+        <!-- Tax & History row -->
+        <div class="display-meta">
+          <div class="tax-badge" id="taxBadge" onclick="toggleTaxPopup()">
+            <span class="tax-label" data-ja="消費税" data-en="Tax">消費税</span>
+            <span id="taxValue">10%</span>
+          </div>
+          <div class="hist-btn" onclick="showHistoryDrawer()" data-ja="▸ 履歴" data-en="▸ History">▸ 履歴</div>
+        </div>
+
+        <!-- Tax popup -->
+        <div class="tax-popup" id="taxPopup">
+          <div class="cp-title" data-ja="税率を選択" data-en="Select Rate">税率を選択</div>
+          <div class="tax-opt active" onclick="selectTax(this, '10%')"><div class="tax-dot"></div><span data-ja="消費税 10%（標準）" data-en="Tax 10% (Standard)">消費税 10%（標準）</span></div>
+          <div class="tax-opt" onclick="selectTax(this, '8%')"><div class="tax-dot"></div><span data-ja="消費税 8%（軽減）" data-en="Tax 8% (Reduced)">消費税 8%（軽減）</span></div>
+          <div class="tax-opt" onclick="selectTax(this, '0%')"><div class="tax-dot"></div><span data-ja="非課税 0%" data-en="Tax-free 0%">非課税 0%</span></div>
+        </div>
+
+        <!-- Keypad -->
+        <div class="keypad" id="keypad">
+          <button class="key key-fn" onclick="pressKey('AC')" data-ja="AC" data-en="AC">AC</button>
+          <button class="key key-fn" onclick="pressKey('+/-')">±</button>
+          <button class="key key-tax" onclick="toggleTaxPopup()" data-ja="税率" data-en="TAX">税率</button>
+          <button class="key key-op" onclick="pressKey('÷')">÷</button>
+
+          <button class="key key-num" onclick="pressKey('7')">7</button>
+          <button class="key key-num" onclick="pressKey('8')">8</button>
+          <button class="key key-num" onclick="pressKey('9')">9</button>
+          <button class="key key-op" onclick="pressKey('×')">×</button>
+
+          <button class="key key-num" onclick="pressKey('4')">4</button>
+          <button class="key key-num" onclick="pressKey('5')">5</button>
+          <button class="key key-num" onclick="pressKey('6')">6</button>
+          <button class="key key-op" onclick="pressKey('−')">−</button>
+
+          <button class="key key-num" onclick="pressKey('1')">1</button>
+          <button class="key key-num" onclick="pressKey('2')">2</button>
+          <button class="key key-num" onclick="pressKey('3')">3</button>
+          <button class="key key-op" onclick="pressKey('+')">+</button>
+
+          <button class="key key-num key-zero" onclick="pressKey('0')">0</button>
+          <button class="key key-num" onclick="pressKey('.')">.</button>
+          <button class="key key-eq" onclick="pressKey('=')">=</button>
+        </div>
+      </div>
+
+      <!-- History Drawer -->
+      <div class="history-drawer" id="historyDrawer">
+        <div class="drawer-handle" onclick="hideHistoryDrawer()"></div>
+        <div class="drawer-title">
+          <span data-ja="計算履歴" data-en="History">計算履歴</span>
+          <div class="drawer-close" onclick="hideHistoryDrawer()">✕</div>
+        </div>
+        <div class="hist-list" id="histList"></div>
+      </div>
+
+      <!-- Color picker -->
+      <div class="color-picker-popup" id="colorPicker">
+        <div class="cp-title" data-ja="カラーラベル" data-en="Color Label">カラーラベル</div>
+        <div class="cp-colors">
+          <div class="cp-swatch" style="background:#ff4d4d" onclick="applyColor('color-red')" title="red"></div>
+          <div class="cp-swatch" style="background:#ff8c42" onclick="applyColor('color-orange')" title="orange"></div>
+          <div class="cp-swatch" style="background:#f5c842" onclick="applyColor('color-yellow')" title="yellow"></div>
+          <div class="cp-swatch" style="background:#42c97a" onclick="applyColor('color-green')" title="green"></div>
+          <div class="cp-swatch" style="background:#3d9eff" onclick="applyColor('color-blue')" title="blue"></div>
+          <div class="cp-swatch" style="background:#a06cff" onclick="applyColor('color-purple')" title="purple"></div>
+          <div class="cp-swatch" style="background:#ff6caa" onclick="applyColor('color-pink')" title="pink"></div>
+          <div class="cp-swatch" style="background:#7a8aaa" onclick="applyColor('color-gray')" title="gray"></div>
+        </div>
+      </div>
+
+      <!-- Upgrade Banner -->
+      <div class="upgrade-banner" id="upgradeBanner">
+        <div class="upgrade-text">
+          Pro版にアップグレード
+          <span data-ja="メモを5件→50件まで保存できます" data-en="Save up to 50 notes with Pro">メモを5件→50件まで保存できます</span>
+        </div>
+        <button class="upgrade-btn" onclick="hideUpgradeBanner()">今すぐ</button>
+      </div>
+
+      <!-- Toast -->
+      <div class="toast" id="toast"></div>
+
+
+      <!-- Pro Upgrade Modal -->
+      <div class="pro-modal-overlay" id="proModalOverlay" onclick="handleOverlayClick(event)">
+        <div class="pro-modal" id="proModal">
+          <div class="pro-modal-handle" onclick="hideProModal()"></div>
+
+          <div class="pro-modal-hero">
+            <div class="pro-badge">PRO VERSION</div>
+            <div class="pro-modal-title" data-ja="メモ上限に達しました" data-en="Memo Limit Reached">メモ上限に達しました</div>
+            <div class="pro-modal-sub" data-ja="無料版では5件まで保存できます" data-en="Free plan allows up to 5 notes">無料版では5件まで保存できます</div>
+            <div class="pro-limit-indicator">
+              <div class="limit-bar"><div class="limit-fill" id="limitFill" style="width:100%"></div></div>
+              <span class="limit-text" id="limitBadgeText">5 / 5</span>
+            </div>
+          </div>
+
+          <div class="pro-features">
+            <div class="pro-feat-row">
+              <div class="pro-feat-icon" style="background:rgba(255,107,53,0.1)">📝</div>
+              <div class="pro-feat-text">
+                <div class="pro-feat-name" data-ja="メモ保存件数 50件" data-en="50 Notes Storage">メモ保存件数 50件</div>
+                <div class="pro-feat-desc" data-ja="無料版5件 → Pro版50件に拡張" data-en="Expand from 5 to 50 notes">無料版5件 → Pro版50件に拡張</div>
+              </div>
+              <div class="pro-feat-badge">Pro</div>
+            </div>
+            <div class="pro-feat-row">
+              <div class="pro-feat-icon" style="background:rgba(61,158,255,0.1)">🗂</div>
+              <div class="pro-feat-text">
+                <div class="pro-feat-name" data-ja="グループ管理（10グループ）" data-en="Group Management (10 groups)">グループ管理（10グループ）</div>
+                <div class="pro-feat-desc" data-ja="仕事・買い物・家計などシーン別に整理" data-en="Organize by work, shopping, home">仕事・買い物・家計などシーン別に整理</div>
+              </div>
+              <div class="pro-feat-badge">Pro</div>
+            </div>
+            <div class="pro-feat-row">
+              <div class="pro-feat-icon" style="background:rgba(160,108,255,0.1)">🖼</div>
+              <div class="pro-feat-text">
+                <div class="pro-feat-name" data-ja="ホーム画面ウィジェット" data-en="Home Screen Widget">ホーム画面ウィジェット</div>
+                <div class="pro-feat-desc" data-ja="アプリを開かずにメモを確認" data-en="Check notes without opening the app">アプリを開かずにメモを確認</div>
+              </div>
+              <div class="pro-feat-badge">Pro</div>
+            </div>
+            <div class="pro-feat-row" style="opacity:0.65">
+              <div class="pro-feat-icon" style="background:rgba(66,201,122,0.1)">✅</div>
+              <div class="pro-feat-text">
+                <div class="pro-feat-name" data-ja="広告ゼロ（無料版も含む）" data-en="Zero Ads (including free)">広告ゼロ（無料版も含む）</div>
+                <div class="pro-feat-desc" data-ja="全バージョン完全広告なし" data-en="Completely ad-free on all plans">全バージョン完全広告なし</div>
+              </div>
+              <div class="pro-feat-badge included">全版</div>
+            </div>
+          </div>
+
+          <div class="pro-cta-area">
+            <div class="pro-price-row">
+              <span class="pro-price">¥480</span>
+              <span class="pro-price-note" data-ja="買い切り・永久ライセンス" data-en="One-time purchase · Lifetime">買い切り・永久ライセンス</span>
+            </div>
+            <button class="pro-buy-btn" onclick="simulatePurchase()" data-ja="Pro版にアップグレード" data-en="Upgrade to Pro">Pro版にアップグレード</button>
+            <button class="pro-restore-btn" data-ja="購入を復元する" data-en="Restore Purchase">購入を復元する</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drag reject flash -->
+      <div class="drag-reject-flash" id="dragRejectFlash"></div>
+
+      <!-- Clear All Confirm Dialog -->
+      <div class="pro-modal-overlay" id="clearConfirmOverlay" onclick="if(event.target===this)hideClearConfirm()">
+        <div class="pro-modal" style="max-height:auto;padding-bottom:20px">
+          <div class="pro-modal-handle" onclick="hideClearConfirm()"></div>
+          <div style="padding:20px 20px 0;text-align:center">
+            <div style="font-size:36px;margin-bottom:10px">🗑️</div>
+            <div style="font-size:17px;font-weight:700;color:var(--text-primary);font-family:var(--font-ui);margin-bottom:6px" data-ja="メモを全削除しますか？" data-en="Clear all notes?">メモを全削除しますか？</div>
+            <div style="font-size:12px;color:var(--text-secondary);font-family:var(--font-ui)" data-ja="保存中のメモ全件が削除されます。この操作は元に戻せません。" data-en="All saved notes will be deleted. This cannot be undone.">保存中のメモ全件が削除されます。この操作は元に戻せません。</div>
+          </div>
+          <div style="display:flex;gap:10px;padding:20px 18px 0">
+            <button onclick="hideClearConfirm()" style="flex:1;padding:13px;border-radius:14px;border:1px solid var(--border);background:var(--surface2);color:var(--text-secondary);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-ui)" data-ja="キャンセル" data-en="Cancel">キャンセル</button>
+            <button onclick="confirmClearAll()" style="flex:1;padding:13px;border-radius:14px;border:none;background:#ff3b30;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-ui)" data-ja="全削除する" data-en="Clear All">全削除する</button>
+          </div>
+        </div>
+      </div>
+      <!-- Drag ghost -->
+      <div class="drag-ghost" id="dragGhost"></div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────
+let currentTheme = 'light';
+let currentLang = 'ja';
+let currentInput = '4,100';
+let expression = '1,200 × 3 + 500';
+let activeTax = '10%';
+let memoIdCounter = 10;
+let selectedMemoId = null;
+let swipeTarget = null;
+let swipeStartX = 0;
+const FREE_LIMIT = 5;
+
+const memos = [
+  { id: 1, value: '1,200', label: '単価', color: 'color-blue', pinned: true },
+  { id: 2, value: '3,600', label: '小計', color: 'color-green', pinned: false },
+  { id: 3, value: '500', label: '送料', color: 'color-orange', pinned: false },
+  { id: 4, value: '4,100', label: '合計', color: 'color-red', pinned: false },
+  { id: 5, value: '2,980', label: '別注文', color: 'color-purple', pinned: false },
+];
+
+const history = [
+  { expr: '1,200 × 3', result: '3,600', time: '今日 9:38' },
+  { expr: '3,600 + 500', result: '4,100', time: '今日 9:39' },
+  { expr: '4,100 × 1.1', result: '4,510', time: '今日 9:40' },
+  { expr: '8,000 ÷ 4', result: '2,000', time: '昨日 18:22' },
+  { expr: '2,980 × 3 + 250', result: '9,190', time: '昨日 14:05' },
+];
+
+// ── THEME ────────────────────────────────────────
+function setTheme(t) {
+  currentTheme = t;
+  const screen = document.getElementById('phoneScreen');
+  screen.classList.toggle('theme-dark', t === 'dark');
+  screen.classList.toggle('theme-light', t === 'light');
+  document.getElementById('btn-dark').classList.toggle('active', t === 'dark');
+  document.getElementById('btn-light').classList.toggle('active', t === 'light');
+}
+function toggleTheme() { setTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
+
+// ── LANG ─────────────────────────────────────────
+function setLang(l) {
+  currentLang = l;
+  document.getElementById('btn-ja').classList.toggle('active', l === 'ja');
+  document.getElementById('btn-en').classList.toggle('active', l === 'en');
+  document.getElementById('langBtn').textContent = l === 'ja' ? 'JA' : 'EN';
+  document.querySelectorAll('[data-ja]').forEach(el => {
+    el.textContent = l === 'ja' ? el.dataset.ja : el.dataset.en;
+  });
+  document.querySelectorAll('[data-ja] span').forEach(el => {
+    if (el.dataset.ja) el.textContent = l === 'ja' ? el.dataset.ja : el.dataset.en;
+  });
+  if (l === 'en') {
+    document.querySelector('#upgradeBanner .upgrade-text').innerHTML =
+      'Upgrade to Pro<span>Save up to 50 notes</span>';
+  } else {
+    document.querySelector('#upgradeBanner .upgrade-text').innerHTML =
+      'Pro版にアップグレード<span data-ja="メモを5件→50件まで保存できます" data-en="Save up to 50 notes with Pro">メモを5件→50件まで保存できます</span>';
+  }
+}
+function toggleLang() { setLang(currentLang === 'ja' ? 'en' : 'ja'); }
+
+// ── MEMOS ────────────────────────────────────────
+function renderMemos() {
+  // close sum bar on any memo change to avoid stale totals
+  if (sumOpen) {
+    document.getElementById('sumBar').classList.remove('open');
+    document.getElementById('sumBtn').classList.remove('active');
+    sumOpen = false;
+  }
+  const grid = document.getElementById('memoGrid');
+  grid.innerHTML = '';
+  document.getElementById('memoCount').textContent = `${memos.length} / ${FREE_LIMIT}`;
+
+  // pinned first
+  const sorted = [...memos].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+  sorted.forEach(m => {
+    const tile = document.createElement('div');
+    tile.className = `memo-tile ${m.color}${m.pinned ? ' pinned' : ''}`;
+    tile.dataset.id = m.id;
+    tile.innerHTML = `
+      <div class="swipe-delete">🗑</div>
+      <div class="memo-value">${m.value}</div>
+      <div class="memo-label">${m.label}</div>
+    `;
+    // tap → load to display
+    tile.addEventListener('click', () => {
+      const val = m.value.replace(/,/g, '');
+      setDisplay(m.value, '');
+      showToast(currentLang === 'ja' ? `「${m.value}」を入力しました` : `Loaded ${m.value}`);
+    });
+    // long press → color picker
+    let holdTimer = null;
+    tile.addEventListener('pointerdown', (e) => {
+      swipeStartX = e.clientX;
+      holdTimer = setTimeout(() => {
+        selectedMemoId = m.id;
+        showColorPicker(tile);
+      }, 500);
+    });
+    tile.addEventListener('pointermove', (e) => {
+      const dx = e.clientX - swipeStartX;
+      if (Math.abs(dx) > 10) clearTimeout(holdTimer);
+      if (dx < -40) {
+        document.querySelectorAll('.memo-tile').forEach(t => t.classList.remove('swiping-left'));
+        tile.classList.add('swiping-left');
+        swipeTarget = m.id;
+      } else if (dx > 20) {
+        tile.classList.remove('swiping-left');
+        swipeTarget = null;
+      }
+    });
+    tile.addEventListener('pointerup', () => {
+      clearTimeout(holdTimer);
+    });
+    tile.querySelector('.swipe-delete').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteMemo(m.id);
+    });
+    grid.appendChild(tile);
+  });
+
+  // add tile (if under limit)
+  if (memos.length < FREE_LIMIT) {
+    const addTile = document.createElement('div');
+    addTile.className = 'memo-add-tile';
+    addTile.innerHTML = `<div class="memo-add-icon">＋</div><div class="memo-add-text">${currentLang === 'ja' ? 'メモを追加' : 'Add Note'}</div>`;
+    addTile.addEventListener('click', () => addMemo());
+    grid.appendChild(addTile);
+  }
+
+  // click outside to close swipe
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.memo-tile')) {
+      document.querySelectorAll('.memo-tile').forEach(t => t.classList.remove('swiping-left'));
+    }
+  }, { once: true });
+}
+
+function addMemo() {
+  if (memos.length >= FREE_LIMIT) { showUpgradeBanner(); return; }
+  const val = document.getElementById('resultLine').textContent;
+  memos.push({ id: ++memoIdCounter, value: val, label: currentLang === 'ja' ? 'メモ' : 'Note', color: 'color-gray', pinned: false });
+  renderMemos();
+  showToast(currentLang === 'ja' ? `「${val}」をメモに保存しました` : `Saved ${val} to notes`);
+}
+
+function deleteMemo(id) {
+  const idx = memos.findIndex(m => m.id === id);
+  if (idx !== -1) {
+    const val = memos[idx].value;
+    memos.splice(idx, 1);
+    renderMemos();
+    const msg = currentLang === 'ja'
+      ? `削除しました <span class="undo-btn" onclick="undoDelete(${id}, ${idx}, '${val}')">元に戻す</span>`
+      : `Deleted <span class="undo-btn" onclick="undoDelete(${id}, ${idx}, '${val}')">Undo</span>`;
+    showToast(msg);
+  }
+}
+
+function undoDelete(id, idx, val) {
+  memos.splice(idx, 0, { id, value: val, label: currentLang === 'ja' ? 'メモ' : 'Note', color: 'color-gray', pinned: false });
+  renderMemos();
+  hideToast();
+}
+
+// ── COLOR PICKER ─────────────────────────────────
+function showColorPicker(tile) {
+  const cp = document.getElementById('colorPicker');
+  const rect = tile.getBoundingClientRect();
+  const screenRect = document.getElementById('phoneScreen').getBoundingClientRect();
+  cp.style.top = (rect.bottom - screenRect.top + 4) + 'px';
+  cp.style.left = (rect.left - screenRect.left) + 'px';
+  cp.classList.add('open');
+  setTimeout(() => document.addEventListener('click', closeColorPicker, { once: true }), 10);
+}
+
+function closeColorPicker() {
+  document.getElementById('colorPicker').classList.remove('open');
+}
+
+function applyColor(colorClass) {
+  if (selectedMemoId !== null) {
+    const m = memos.find(m => m.id === selectedMemoId);
+    if (m) {
+      m.color = colorClass;
+      renderMemos();
+    }
+  }
+  closeColorPicker();
+}
+
+// ── DRAG & DROP ───────────────────────────────────
+function startDrag(event) {
+  const val = document.getElementById('resultLine').textContent;
+  event.dataTransfer.setData('text/plain', val);
+  document.getElementById('resultLine').classList.add('dragging');
+  const ghost = document.getElementById('dragGhost');
+  ghost.textContent = val;
+  ghost.style.display = 'block';
+  event.dataTransfer.setDragImage(new Image(), 0, 0);
+}
+
+function endDrag(event) {
+  document.getElementById('resultLine').classList.remove('dragging');
+  document.getElementById('dragGhost').style.display = 'none';
+  document.getElementById('memoGrid').classList.remove('drop-active');
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  document.getElementById('memoGrid').classList.remove('drop-active');
+  const val = event.dataTransfer.getData('text/plain');
+  if (memos.length >= FREE_LIMIT) { showUpgradeBanner(); return; }
+  memos.push({ id: ++memoIdCounter, value: val, label: currentLang === 'ja' ? 'メモ' : 'Note', color: 'color-gray', pinned: false });
+  renderMemos();
+  showToast(currentLang === 'ja' ? `「${val}」をメモに保存しました` : `Saved ${val}`);
+}
+
+// mouse-based drag simulation for demo
+let isDragging = false;
+let dragStartY = 0;
+
+document.getElementById('resultLine').addEventListener('mousedown', (e) => {
+  isDragging = true;
+  dragStartY = e.clientY;
+  const ghost = document.getElementById('dragGhost');
+  ghost.textContent = document.getElementById('resultLine').textContent;
+  ghost.style.display = 'block';
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  const ghost = document.getElementById('dragGhost');
+  ghost.style.left = e.clientX + 'px';
+  ghost.style.top = e.clientY + 'px';
+  const grid = document.getElementById('memoGrid');
+  const rect = grid.getBoundingClientRect();
+  if (e.clientX > rect.left && e.clientX < rect.right && e.clientY > rect.top && e.clientY < rect.bottom) {
+    grid.classList.add('drop-active');
+  } else {
+    grid.classList.remove('drop-active');
+  }
+});
+
+document.addEventListener('mouseup', (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+  const ghost = document.getElementById('dragGhost');
+  ghost.style.display = 'none';
+  document.getElementById('resultLine').classList.remove('dragging');
+  const grid = document.getElementById('memoGrid');
+  grid.classList.remove('drop-active');
+  const rect = grid.getBoundingClientRect();
+  if (e.clientX > rect.left && e.clientX < rect.right && e.clientY > rect.top && e.clientY < rect.bottom) {
+    if (memos.length >= FREE_LIMIT) { showDragReject(); return; }
+    const val = document.getElementById('resultLine').textContent;
+    memos.push({ id: ++memoIdCounter, value: val, label: currentLang === 'ja' ? 'メモ' : 'Note', color: 'color-gray', pinned: false });
+    renderMemos();
+    showToast(currentLang === 'ja' ? `「${val}」をメモに保存しました` : `Saved ${val}`);
+  }
+});
+
+// ── CALCULATOR ───────────────────────────────────
+function pressKey(k) {
+  const display = document.getElementById('resultLine');
+  const expr = document.getElementById('exprLine');
+
+  if (k === 'AC') {
+    setDisplay('0', '');
+    return;
+  }
+
+  const ops = ['÷', '×', '−', '+'];
+  const current = display.textContent.replace(/,/g, '');
+
+  if (k === '=') {
+    try {
+      const raw = expr.textContent || current;
+      const evalStr = raw
+        .replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/,/g, '');
+      let result = Function('"use strict"; return (' + evalStr + ')')();
+      if (isNaN(result) || !isFinite(result)) { setDisplay('エラー', ''); return; }
+      const formatted = formatNum(result);
+      addHistory(expr.textContent || current, formatted);
+      setDisplay(formatted, (expr.textContent || current) + ' =');
+    } catch(e) { setDisplay('エラー', ''); }
+    return;
+  }
+
+  if (ops.includes(k)) {
+    const newExpr = (expr.textContent || current) + ' ' + k + ' ';
+    expr.textContent = newExpr;
+    display.textContent = '0';
+    return;
+  }
+
+  if (k === '+/-') {
+    const n = parseFloat(current) * -1;
+    display.textContent = formatNum(n);
+    return;
+  }
+
+  let cur = display.textContent === '0' ? '' : display.textContent.replace(/,/g, '');
+  cur += k;
+  try {
+    const n = parseFloat(cur);
+    display.textContent = isNaN(n) ? cur : formatNum(n);
+  } catch(e) { display.textContent = cur; }
+
+  // flash
+  display.classList.remove('flash');
+  void display.offsetWidth;
+  display.classList.add('flash');
+}
+
+function setDisplay(val, exprVal) {
+  const d = document.getElementById('resultLine');
+  const e = document.getElementById('exprLine');
+  d.textContent = val;
+  e.textContent = exprVal;
+  d.classList.remove('flash');
+  void d.offsetWidth;
+  d.classList.add('flash');
+  // shrink font for long numbers
+  d.style.fontSize = val.length > 10 ? '26px' : val.length > 7 ? '32px' : '38px';
+}
+
+function formatNum(n) {
+  if (Number.isInteger(n)) return n.toLocaleString('ja-JP');
+  return parseFloat(n.toFixed(4)).toLocaleString('ja-JP');
+}
+
+// ── TAX ─────────────────────────────────────────
+function toggleTaxPopup() {
+  const p = document.getElementById('taxPopup');
+  const b = document.getElementById('taxBadge');
+  const isOpen = p.classList.toggle('open');
+  b.classList.toggle('selecting', isOpen);
+  if (isOpen) setTimeout(() => document.addEventListener('click', closeTaxPopup, { once: true }), 10);
+}
+
+function closeTaxPopup() {
+  document.getElementById('taxPopup').classList.remove('open');
+  document.getElementById('taxBadge').classList.remove('selecting');
+}
+
+function selectTax(el, rate) {
+  activeTax = rate;
+  document.getElementById('taxValue').textContent = rate;
+  document.querySelectorAll('.tax-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  closeTaxPopup();
+  showToast(currentLang === 'ja' ? `税率を${rate}に設定しました` : `Tax rate set to ${rate}`);
+}
+
+// ── HISTORY ─────────────────────────────────────
+function addHistory(expr, result) {
+  history.unshift({ expr, result, time: currentLang === 'ja' ? '今 ' + new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }) : 'Now' });
+  if (history.length > 100) history.pop();
+}
+
+function renderHistory() {
+  const list = document.getElementById('histList');
+  list.innerHTML = '';
+  history.forEach((h, i) => {
+    const item = document.createElement('div');
+    item.className = 'hist-item';
+    item.innerHTML = `
+      <div class="hist-expr">${h.expr}</div>
+      <div class="hist-result">${h.result}</div>
+      <div class="hist-time">${h.time}</div>
+    `;
+    item.addEventListener('click', () => {
+      setDisplay(h.result, h.expr + ' =');
+      hideHistoryDrawer();
+    });
+    list.appendChild(item);
+  });
+}
+
+function showHistoryDrawer() {
+  renderHistory();
+  document.getElementById('historyDrawer').classList.add('open');
+}
+function hideHistoryDrawer() {
+  document.getElementById('historyDrawer').classList.remove('open');
+}
+
+// ── TOAST ────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 2800);
+}
+function hideToast() {
+  document.getElementById('toast').classList.remove('show');
+}
+
+// ── PRO MODAL ────────────────────────────────────
+function showUpgradeBanner() { showProModal(); }  // redirect old calls
+
+function showProModal() {
+  const overlay = document.getElementById('proModalOverlay');
+  const fillPct = Math.min((memos.length / FREE_LIMIT) * 100, 100);
+  document.getElementById('limitFill').style.width = fillPct + '%';
+  document.getElementById('limitBadgeText').textContent = memos.length + ' / ' + FREE_LIMIT;
+  overlay.classList.add('open');
+  // re-apply lang
+  overlay.querySelectorAll('[data-ja]').forEach(el => {
+    el.textContent = currentLang === 'ja' ? el.dataset.ja : el.dataset.en;
+  });
+}
+
+function hideProModal() {
+  document.getElementById('proModalOverlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('proModalOverlay')) hideProModal();
+}
+
+function simulatePurchase() {
+  hideProModal();
+  showToast(currentLang === 'ja' ? '🎉 Pro版にアップグレードしました！' : '🎉 Upgraded to Pro!');
+  // demo: extend limit visually
+  document.getElementById('memoCount').textContent = memos.length + ' / 50 (Pro)';
+}
+
+function hideUpgradeBanner() {
+  document.getElementById('upgradeBanner').classList.remove('show');
+}
+
+// ── DRAG REJECT EFFECT ────────────────────────────
+function showDragReject() {
+  const grid = document.getElementById('memoGrid');
+  const flash = document.getElementById('dragRejectFlash');
+  grid.classList.add('full-warning');
+  flash.classList.add('show');
+  setTimeout(() => {
+    grid.classList.remove('full-warning');
+    flash.classList.remove('show');
+  }, 600);
+  setTimeout(() => showProModal(), 650);
+}
+
+// ── GROUP TAB TOGGLE (demo) ───────────────────────
+function toggleGroup() {
+  showToast(currentLang === 'ja' ? '（Pro）グループ切替はPro版で利用できます' : '(Pro) Group switching available in Pro');
+}
+
+
+// ── SUM ALL MEMOS ─────────────────────────────────
+let sumOpen = false;
+
+function sumAllMemos() {
+  const btn = document.getElementById('sumBtn');
+  const bar = document.getElementById('sumBar');
+
+  if (memos.length === 0) {
+    showToast(currentLang === 'ja' ? 'メモがありません' : 'No notes to sum');
+    return;
+  }
+
+  // calculate
+  const total = memos.reduce((acc, m) => {
+    const n = parseFloat(m.value.replace(/,/g, ''));
+    return acc + (isNaN(n) ? 0 : n);
+  }, 0);
+
+  const formatted = formatNum(total);
+
+  // breakdown string (e.g. "1,200 + 3,600 + ...")
+  const parts = memos.map(m => m.value);
+  const breakdownFull = parts.join(' + ');
+  document.getElementById('sumBreakdown').textContent = breakdownFull;
+  document.getElementById('sumValue').textContent = formatted;
+
+  // toggle
+  if (!sumOpen) {
+    bar.classList.add('open');
+    btn.classList.add('active');
+    sumOpen = true;
+    // re-apply lang to bar
+    bar.querySelectorAll('[data-ja]').forEach(el => {
+      el.textContent = currentLang === 'ja' ? el.dataset.ja : el.dataset.en;
+    });
+    showToast(
+      currentLang === 'ja'
+        ? `${memos.length}件の合計： ${formatted}`
+        : `Sum of ${memos.length} notes: ${formatted}`
+    );
+  } else {
+    bar.classList.remove('open');
+    btn.classList.remove('active');
+    sumOpen = false;
+  }
+}
+
+function useSumInCalc() {
+  const val = document.getElementById('sumValue').textContent;
+  setDisplay(val, '');
+  // close bar
+  document.getElementById('sumBar').classList.remove('open');
+  document.getElementById('sumBtn').classList.remove('active');
+  sumOpen = false;
+  showToast(currentLang === 'ja' ? `合計 ${val} を電卓に入力しました` : `Total ${val} loaded`);
+}
+
+// ── CLEAR ALL ────────────────────────────────────
+let clearedMemos = [];
+
+function clearAllMemos() {
+  if (memos.length === 0) {
+    showToast(currentLang === 'ja' ? 'メモはありません' : 'No notes to clear');
+    return;
+  }
+  if (memos.length === 0) {
+    showToast(currentLang === 'ja' ? 'メモはありません' : 'No notes to clear');
+    return;
+  }
+  // update dialog lang
+  document.querySelectorAll('#clearConfirmOverlay [data-ja]').forEach(el => {
+    el.textContent = currentLang === 'ja' ? el.dataset.ja : el.dataset.en;
+  });
+  document.getElementById('clearConfirmOverlay').classList.add('open');
+}
+
+function hideClearConfirm() {
+  document.getElementById('clearConfirmOverlay').classList.remove('open');
+}
+
+function confirmClearAll() {
+  clearedMemos = [...memos];
+  const count = memos.length;
+  memos.length = 0;
+  renderMemos();
+  hideClearConfirm();
+  const msg = currentLang === 'ja'
+    ? `${count}件のメモを削除しました <span class="undo-btn" onclick="undoClearAll()">元に戻す</span>`
+    : `Cleared ${count} notes <span class="undo-btn" onclick="undoClearAll()">Undo</span>`;
+  showToast(msg);
+}
+
+function undoClearAll() {
+  clearedMemos.forEach(m => memos.push(m));
+  clearedMemos = [];
+  renderMemos();
+  hideToast();
+}
+
+// ── INIT ─────────────────────────────────────────
+renderMemos();
+setTheme('light');
+setLang('ja');
+</script>
+</body>
+</html>
