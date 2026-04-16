@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Particle Message</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#05050e;overflow:hidden;font-family:'Noto Sans JP',sans-serif;color:#fff}
+
+body::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 25% 40%,rgba(80,50,180,.14) 0%,transparent 55%),
+    radial-gradient(ellipse at 75% 65%,rgba(160,50,130,.1) 0%,transparent 50%);
+}
+
+/* ── Input Screen ── */
+#inp{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  padding:24px;
+  transition:opacity .75s ease;
+}
+.ttl{color:rgba(190,160,255,.75);font-size:12px;letter-spacing:7px;font-weight:400}
+.sub{color:rgba(255,255,255,.2);font-size:11px;letter-spacing:3px;font-weight:400;margin-top:-10px}
+
+#txt{
+  width:min(480px,92vw);
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(160,130,255,.25);
+  border-radius:10px;
+  color:rgba(255,255,255,.88);
+  font-size:16px;
+  padding:15px 18px;
+  outline:none;
+  font-family:inherit;
+  transition:border-color .3s,background .3s;
+  caret-color:rgba(180,150,255,.9);
+}
+#txt:focus{border-color:rgba(160,130,255,.65);background:rgba(255,255,255,.065)}
+#txt::placeholder{color:rgba(255,255,255,.17)}
+#txt.shake{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+#cnt{
+  color:rgba(255,255,255,.2);font-size:12px;
+  align-self:flex-end;
+  margin-right:calc((100% - min(480px,92vw))/2 + 2px);
+  margin-top:-14px;
+  transition:color .2s;
+}
+#cnt.warn{color:rgba(255,150,130,.6)}
+
+#btn{
+  background:linear-gradient(135deg,rgba(100,60,220,.9),rgba(190,60,165,.9));
+  border:none;border-radius:50px;
+  color:#fff;font-size:14px;letter-spacing:5px;
+  padding:14px 54px;cursor:pointer;
+  font-family:inherit;font-weight:700;
+  box-shadow:0 0 24px rgba(140,70,220,.3);
+  transition:opacity .25s,transform .2s,box-shadow .25s;
+}
+#btn:hover{opacity:.85;transform:scale(1.04);box-shadow:0 0 36px rgba(140,70,220,.5)}
+#btn:active{transform:scale(.97)}
+
+/* ── Canvas Screen ── */
+#out{
+  position:absolute;inset:0;
+  opacity:0;pointer-events:none;
+  transition:opacity .75s ease;
+}
+#out.on{opacity:1;pointer-events:auto}
+canvas{display:block;width:100%;height:100%}
+
+#prog{
+  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+  width:min(260px,65vw);
+}
+#bar{
+  height:1px;background:rgba(160,130,255,.65);width:0%;
+  box-shadow:0 0 8px rgba(160,130,255,.9);
+  transition:width .1s linear;
+}
+#retry{
+  position:absolute;bottom:54px;left:50%;transform:translateX(-50%);
+  background:none;border:none;
+  color:rgba(160,130,255,.45);font-size:11px;letter-spacing:4px;
+  cursor:pointer;font-family:inherit;padding:8px 20px;
+  opacity:0;transition:opacity 1.2s,color .2s;
+}
+#retry:hover{color:rgba(160,130,255,.9)}
+</style>
+</head>
+<body>
+
+<div id="inp">
+  <p class="ttl">✦ PARTICLE MESSAGE</p>
+  <input id="txt" type="text" maxlength="50" placeholder="メッセージを入力してください（最大50文字）">
+  <div id="cnt">0 / 50</div>
+  <button id="btn">生成実行</button>
+  <p class="sub">粒子があなたの言葉を紡ぎます</p>
+</div>
+
+<div id="out">
+  <canvas id="c"></canvas>
+  <div id="prog"><div id="bar"></div></div>
+  <button id="retry">もう一度作る</button>
+</div>
+
+<script>
+(function(){
+  const inp=document.getElementById('inp');
+  const out=document.getElementById('out');
+  const txtEl=document.getElementById('txt');
+  const cntEl=document.getElementById('cnt');
+  const btn=document.getElementById('btn');
+  const canvas=document.getElementById('c');
+  const barEl=document.getElementById('bar');
+  const retry=document.getElementById('retry');
+  const ctx=canvas.getContext('2d');
+
+  let W,H,dpr,particles=[],animId=null;
+
+  // ── Char counter ──
+  txtEl.addEventListener('input',()=>{
+    const n=txtEl.value.length;
+    cntEl.textContent=n+' / 50';
+    cntEl.classList.toggle('warn',n>=45);
+  });
+
+  btn.addEventListener('click',()=>{
+    const text=txtEl.value.trim();
+    if(!text){
+      txtEl.classList.remove('shake');
+      void txtEl.offsetWidth;
+      txtEl.classList.add('shake');
+      return;
+    }
+    launch(text);
+  });
+
+  retry.addEventListener('click',()=>{
+    cancelAnimationFrame(animId);
+    out.classList.remove('on');
+    retry.style.opacity='0';
+    setTimeout(()=>{
+      inp.style.opacity='1';
+      inp.style.pointerEvents='';
+      txtEl.value='';
+      cntEl.textContent='0 / 50';
+      cntEl.classList.remove('warn');
+      barEl.style.width='0%';
+      particles=[];
+    },500);
+  });
+
+  function launch(text){
+    inp.style.opacity='0';
+    inp.style.pointerEvents='none';
+    setTimeout(()=>{ out.classList.add('on'); setup(text); },800);
+  }
+
+  function setup(text){
+    dpr=Math.min(devicePixelRatio,2);
+    W=window.innerWidth; H=window.innerHeight;
+    canvas.width=W*dpr; canvas.height=H*dpr;
+    ctx.scale(dpr,dpr);
+
+    const targets=sampleText(text);
+    const maxDelay=5200;
+
+    particles=targets.map(({x,y})=>{
+      const angle=Math.random()*Math.PI*2;
+      const dist=Math.hypot(W,H)*(0.4+Math.random()*0.5);
+      const sx=W/2+Math.cos(angle)*dist;
+      const sy=H/2+Math.sin(angle)*dist;
+      const delay=Math.random()*maxDelay;
+      const hue=220+(x/W)*70+(y/H)*30;
+      const lit=60+Math.random()*25;
+      return{
+        x:sx,y:sy,sx,sy,tx:x,ty:y,
+        delay,
+        travelTime:3500+Math.random()*3500,
+        color:'hsl('+hue+',75%,'+lit+'%)',
+        r:Math.random()*1.4+0.5,
+        phase:Math.random()*Math.PI*2,
+      };
+    });
+
+    cancelAnimationFrame(animId);
+    const t0=performance.now();
+    const TOTAL=10800;
+
+    (function frame(now){
+      const el=now-t0;
+      const gp=Math.min(el/TOTAL,1);
+      barEl.style.width=(gp*100)+'%';
+
+      ctx.clearRect(0,0,W,H);
+      let allDone=true;
+
+      for(let i=0;i<particles.length;i++){
+        const p=particles[i];
+        const le=el-p.delay;
+        if(le<0){allDone=false;continue;}
+        const t=Math.min(le/p.travelTime,1);
+        if(t<1)allDone=false;
+        const e=1-Math.pow(1-t,3); // easeOutCubic
+        p.x=p.sx+(p.tx-p.sx)*e;
+        p.y=p.sy+(p.ty-p.sy)*e;
+        ctx.globalAlpha=0.25+e*0.75;
+        ctx.fillStyle=p.color;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r+(1-e)*2.5,0,6.283);
+        ctx.fill();
+      }
+      ctx.globalAlpha=1;
+
+      if(!allDone||gp<1){
+        animId=requestAnimationFrame(frame);
+      } else {
+        retry.style.opacity='1';
+        shimmer();
+      }
+    })(t0);
+  }
+
+  function shimmer(){
+    (function f(now){
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<particles.length;i++){
+        const p=particles[i];
+        const s=Math.sin(now*0.0016+p.phase)*0.12;
+        ctx.globalAlpha=0.88+s;
+        ctx.fillStyle=p.color;
+        ctx.beginPath();
+        ctx.arc(p.tx,p.ty,p.r,0,6.283);
+        ctx.fill();
+      }
+      ctx.globalAlpha=1;
+      animId=requestAnimationFrame(f);
+    })(performance.now());
+  }
+
+  function sampleText(text){
+    const off=document.createElement('canvas');
+    off.width=W; off.height=H;
+    const oc=off.getContext('2d');
+    oc.fillStyle='#000';
+    oc.fillRect(0,0,W,H);
+    oc.fillStyle='#fff';
+    oc.textAlign='center';
+    oc.textBaseline='middle';
+
+    const chars=[...text],len=chars.length;
+    let lines,fontSize;
+
+    if(len<=10){
+      lines=[text];
+      fontSize=Math.min(W*0.13,H*0.2,130);
+    } else if(len<=24){
+      const m=Math.ceil(len/2);
+      lines=[chars.slice(0,m).join(''),chars.slice(m).join('')];
+      fontSize=Math.min(W*0.09,H*0.15,95);
+    } else {
+      const m=Math.ceil(len/3);
+      lines=[chars.slice(0,m).join(''),chars.slice(m,m*2).join(''),chars.slice(m*2).join('')];
+      fontSize=Math.min(W*0.07,H*0.12,72);
+    }
+
+    oc.font='bold '+fontSize+'px \'Noto Sans JP\',sans-serif';
+    // Shrink if overflow
+    while(lines.some(l=>oc.measureText(l).width>W*0.87)&&fontSize>16){
+      fontSize-=2;
+      oc.font='bold '+fontSize+'px \'Noto Sans JP\',sans-serif';
+    }
+
+    const lineH=fontSize*1.55;
+    const totalH=(lines.length-1)*lineH;
+    lines.forEach((l,i)=>oc.fillText(l,W/2,H/2-totalH/2+i*lineH));
+
+    const id=oc.getImageData(0,0,W,H).data;
+    const pts=[];
+    const step=3;
+    for(let y=0;y<H;y+=step){
+      for(let x=0;x<W;x+=step){
+        if(id[(y*W+x)*4]>100) pts.push({x,y});
+      }
+    }
+    // Cap at 6000 particles
+    if(pts.length>6000){
+      const r=6000/pts.length;
+      return pts.filter(()=>Math.random()<r);
+    }
+    return pts;
+  }
+
+  // Cleanup on resize (don't re-render mid-animation)
+  window.addEventListener('resize',()=>{
+    if(!out.classList.contains('on')) return;
+    // canvas CSS fills 100% so visual stretches; acceptable for this use case
+  });
+})();
+</script>
+</body>
+</html>
